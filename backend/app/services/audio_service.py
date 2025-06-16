@@ -5,9 +5,15 @@ import os
 import uuid
 import asyncio
 from typing import Optional
-from TTS.api import TTS
 
 from ..core.config import settings
+
+try:
+    from TTS.api import TTS
+    TTS_AVAILABLE = True
+except ImportError:
+    TTS_AVAILABLE = False
+    TTS = None
 
 class AudioService:
     """Service for generating audio from text using Coqui TTS"""
@@ -18,6 +24,11 @@ class AudioService:
     
     def _initialize_tts(self):
         """Initialize TTS model"""
+        if not TTS_AVAILABLE:
+            print("Warning: TTS package not available. Audio generation will be disabled.")
+            self.tts = None
+            return
+            
         try:
             # Initialize TTS with XTTS-v2 model
             self.tts = TTS(model_name=settings.TTS_MODEL_NAME, progress_bar=False)

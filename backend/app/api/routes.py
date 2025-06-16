@@ -34,10 +34,10 @@ async def upload_and_generate_story(
     
     # Check file extension
     file_extension = file.filename.split('.')[-1].lower() if file.filename else ''
-    if file_extension not in settings.ALLOWED_EXTENSIONS:
+    if file_extension not in settings.allowed_extensions_list:
         raise HTTPException(
             status_code=400, 
-            detail=f"File extension not allowed. Allowed: {', '.join(settings.ALLOWED_EXTENSIONS)}"
+            detail=f"File extension not allowed. Allowed: {', '.join(settings.allowed_extensions_list)}"
         )
     
     # Check file size

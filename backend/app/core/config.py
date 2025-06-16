@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     
     # API Configuration
     API_BASE_URL: str = "http://localhost:8000"
-    CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://localhost:3000"]
+    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
     
     # Hugging Face API
     HUGGINGFACE_API_KEY: str = ""
@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     
     # File Upload Settings
     MAX_FILE_SIZE: int = 10485760  # 10MB
-    ALLOWED_EXTENSIONS: List[str] = ["jpg", "jpeg", "png", "webp"]
+    ALLOWED_EXTENSIONS: str = "jpg,jpeg,png,webp"
     
     # Development Settings
     DEBUG: bool = True
@@ -43,11 +43,22 @@ class Settings(BaseSettings):
         env_file = ".env"
         case_sensitive = True
 
+    @property
+    def cors_origins_list(self) -> List[str]:
+        """Parse CORS_ORIGINS string into a list"""
+        if isinstance(self.CORS_ORIGINS, str):
+            return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+        return self.CORS_ORIGINS if isinstance(self.CORS_ORIGINS, list) else []
+
+    @property
+    def allowed_extensions_list(self) -> List[str]:
+        """Parse ALLOWED_EXTENSIONS string into a list"""
+        if isinstance(self.ALLOWED_EXTENSIONS, str):
+            return [ext.strip() for ext in self.ALLOWED_EXTENSIONS.split(",")]
+        return self.ALLOWED_EXTENSIONS if isinstance(self.ALLOWED_EXTENSIONS, list) else []
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # Parse CORS_ORIGINS if it's a string
-        if isinstance(self.CORS_ORIGINS, str):
-            self.CORS_ORIGINS = [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
         
         # Build DATABASE_URL if not provided and individual components are available
         if not self.DATABASE_URL and all([self.DB_HOST, self.DB_USERNAME, self.DB_PASSWORD, self.DB_DATABASE]):
